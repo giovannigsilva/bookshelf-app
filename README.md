@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
 
-First, run the development server:
+# 📚 BookShelf: Gerenciamento de Biblioteca Pessoal
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Este projeto é uma aplicação web moderna para catalogar, organizar e acompanhar o progresso de leitura de livros pessoais.
+
+## 💻 Tecnologias e Arquitetura
+
+[cite\_start]BookShelf foi desenvolvido com um *stack* moderno e *type-safe* que utiliza a arquitetura Server/Client Component do Next.js App Router
+| Categoria | Tecnologia | Versão | Propósito |
+| :--- | :--- | :--- | :--- |
+| **Framework** | **Next.js** | 15 (App Router) | Roteamento, SSR e Server Actions. |
+| **Linguagem** | **TypeScript** | - | Tipagem e segurança de código. |
+| **Banco de Dados** | **SQLite** | - | Banco de dados leve para desenvolvimento e persistência. |
+| **ORM** | **Prisma** | - | Camada de dados type-safe e ORM para SQLite. |
+| **Estilização** | **Tailwind CSS** | - | Framework utilitário CSS para estilização rápida e responsiva[cite: 161]. |
+| **Componentes** | **shadcn/ui** | - | Biblioteca de componentes acessíveis e customizáveis. |
+| **Temas** | `next-themes` | - | Suporte a Dark/Light/System Mode. |
+
+## 🌟 Funcionalidades Principais
+
+| Seção | Funcionalidades |
+| :--- | :--- |
+| **Dashboard** (`/`) | Estatísticas gerais (Total de livros, Livros lendo, Páginas lidas) e navegação rápida. |
+| **Biblioteca** (`/books`) | Listagem de livros em formato de cards, com sistema de **busca por título/autor** e **filtros por gênero**. |
+| **CRUD** | Criação, Visualização, Edição e Exclusão de livros. |
+| **Detalhes** | Exibição completa de informações, progresso de leitura, sinopse e notas pessoais. |
+| **UX/UI** | Design responsivo, tema claro/escuro e feedback visual (Toasts/Dialogs). |
+
+## 📁 Estrutura do Projeto
+
+A estrutura de pastas segue as convenções do Next.js App Router, com foco na separação de responsabilidades (data access, components, layouts):
+
+```
+bookshelf-app/
+├── app/
+│   ├── (routes)/
+│   │   ├── books/
+│   │   │   ├── [bookId]/         # Página de Detalhes do Livro (READ)
+│   │   │   │   └── page.tsx
+│   │   │   ├── edit/
+│   │   │   │   └── [bookId]/     # Página de Edição (UPDATE)
+│   │   │   │       └── page.tsx
+│   │   │   ├── new/              # Página de Adição de Novo Livro (CREATE)
+│   │   │   │   └── page.tsx
+│   │   │   ├── route.ts          # API Route: GET/POST /api/books (CRUD)
+│   │   │   ├── actions.ts        # Next.js Server Actions (Mutations)
+│   │   │   └── page.tsx          # Página da Biblioteca (Listagem)
+│   │   ├── api/
+│   │   │   ├── books/            # API Routes para o modelo Book
+│   │   │   └── categories/       # API Routes para Gêneros
+│   │   ├── layout.tsx            # Layout principal (Header, ThemeProvider)
+│   │   └── page.tsx              # Dashboard Principal
+│   └── components/
+│       ├── books/                # Componentes específicos de livros (BookCard, Filtros)
+│       ├── dashboard/            # Componentes específicos do Dashboard (StatCard)
+│       ├── forms/                # Componentes de Formulário (BookForm)
+│       ├── layout/               # Componentes estruturais (Header, ThemeToggle)
+│       └── ui/                   # Componentes do shadcn/ui
+├── data/                         # Camada de Acesso a Dados (CRUD functions - usa Prisma)
+│   ├── books.ts                  # Funções CRUD para Livros e Estatísticas
+│   └── genres.ts                 # Funções CRUD para Gêneros
+├── lib/
+│   ├── prisma.ts                 # Cliente Prisma Singleton (conexão otimizada)
+│   └── utils.ts                  # Funções utilitárias (cn, getStatusVariant)
+├── prisma/
+│   ├── schema.prisma             # Modelo de dados (Livro, Gênero, Enum Status)
+│   └── seed.js                   # Script de população inicial do BD
+└── tsconfig.json                 # Configurações do TypeScript (incluindo alias @/)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
