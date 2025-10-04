@@ -35,7 +35,7 @@ export default function BookCard({ book }: { book: BookWithGenre }) {
         <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
             <CardHeader className="p-0 border-b relative">
                 <Image
-                    src={fallbackCoverUrl || book.cover}
+                    src={ book.cover || fallbackCoverUrl }
                     alt={`Capa do livro ${book.title}`}
                     width={300}
                     height={450}

@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        >
+        > 
           <Header />
           {/* Contêiner principal para centralizar o conteúdo */}
           <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
