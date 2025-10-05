@@ -1,7 +1,4 @@
-// app/(routes)/books/page.tsx
-
 import { getBooks } from '@/data/book';
-import { getGenres } from '@/data/genres'; // Assumindo que você recriará este arquivo depois
 import BookCard from '@/components/books/BookCard';
 import { BookOpenText } from 'lucide-react';
 
@@ -14,7 +11,7 @@ export default async function BookshelfPage({
 }) {
 
     // Busca os livros com base nos filtros (função getBooks já suporta isso)
-    const allBooks = await getBooks(searchParams.search, searchParams.genre);
+    const allBooks = await getBooks(searchParams?.search, searchParams?.genre);
     // const genres = await getGenres(); // Usaríamos para o componente de filtro
 
     return (
