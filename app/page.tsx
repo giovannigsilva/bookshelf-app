@@ -1,55 +1,93 @@
-// app/page.tsx (Dashboard - Server Component)
+"use client";
 
-import { getOverallStats, getBooks } from "@/data/book";  
-import { Button } from "@/components/ui/button" 
-import StartCard from '@/components/dashboard/StartCard';
-import { BookOpen, Book, CheckSquare, TrendingUp, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { login, signup } from '../lib/actions';
 
 
-export default async function DashboardPage() {
-  // Chamada direta ao banco de dados, utilizando Server Components
-  const stats = await getOverallStats();
-
-  // Lista de cards de estatísticas 
-  const statCards = [
-    { title: 'Total de Livros', value: stats.totalBooks, icon: Book, description: 'Livros cadastrados na sua biblioteca.' },
-    { title: 'Sendo Lidos', value: stats.reading, icon: BookOpen, description: 'Livros em progresso de leitura.' },
-    { title: 'Leituras Finalizadas', value: stats.finished, icon: CheckSquare, description: 'Livros já finalizados.' },
-    { title: 'Páginas Lidas', value: stats.pagesRead.toLocaleString(), icon: TrendingUp, description: 'Total de páginas de livros finalizados.' },
-  ];
+export default function AuthPage() {
+  const [isLoginView, setIsLoginView] = useState(true);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <section className="space-y-8">
-        <h1 className="text-3xl font-bold">Dashboard Principal</h1>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="w-full max-w-sm">
+        {/* O Header do Card muda de acordo com o estado */}
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            {isLoginView ? 'Acessar Plataforma' : 'Criar uma Conta'}
+          </CardTitle>
+          <CardDescription>
+            {isLoginView ? 'Entre com seu e-mail e senha' : 'Digite seus dados para se cadastrar'}
+          </CardDescription>
+        </CardHeader>
 
-        {/* Grid de Estatísticas (Design responsivo e atrativo) */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((card) => (
-            <StartCard key={card.title} {...card} />
-          ))}
+        {isLoginView ? (
+         /* ==================== FORMULÁRIO DE LOGIN ==================== */
+<form action={login}>
+    <CardContent className="space-y-4">
+        <div className="space-y-2">
+            <Label htmlFor="email">E-mail</Label>
+            <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
         </div>
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+           </div>
+            <Input id="password" name="password" type="password" required />
+        </div>
+    </CardContent>
+    {/* AQUI A MUDANÇA: Adicionei "pt-4" para criar o espaçamento */}
+    <CardFooter className="flex flex-col gap-4 pt-4">
+        <Button type="submit" className="w-full">Entrar</Button>
+    </CardFooter>
+</form>
+) : (
+          /* ==================== FORMULÁRIO DE CADASTRO ==================== */
+          <form action={signup}>
+            
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input id="name" name="name" type="text" placeholder="Seu nome completo" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input id="password" name="password" type="password" required />
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4 pt-4">
+              <Button type="submit" className="w-full">Cadastrar</Button>
+            </CardFooter>
+          </form>
+          
+        )}
 
-        {/* Navegação Rápida*/}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Navegação Rápida</h2>
-          <div className='flex gap-4'>
-            <Button size="lg" asChild>
-              <Link href="/books">
-                Minha Biblioteca
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/books/new">
-                Adicionar Novo Livro
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+        {/* ==================== BOTÃO PARA ALTERNAR ==================== */}
+                <div className="p-6 pt-0 text-center text-sm text-muted-foreground">
+          {isLoginView ? (
+            <>
+              Não possui uma conta?{' '}
+              <button onClick={() => setIsLoginView(false)} className="underline underline-offset-2 hover:text-primary">
+                Cadastre-se
+              </button>
+            </>
+          ) : (
+            <>
+              Já tem uma conta?{' '}
+              <button onClick={() => setIsLoginView(true)} className="underline underline-offset-2 hover:text-primary">
+                Faça login
+              </button>
+            </>
+          )}
         </div>
-      </section>
-    </main>
+      </Card>
+    </div>
   );
 }
