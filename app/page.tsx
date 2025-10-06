@@ -13,7 +13,7 @@ export default function AuthPage() {
   const [isLoginView, setIsLoginView] = useState(true);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex items-center justify-center min-h-screen bg-background bg-[url('/teste1.png')] bg-cover bg-center bg-no-repeat backdrop-blur-sm">
       <Card className="w-full max-w-sm">
         {/* O Header do Card muda de acordo com o estado */}
         <CardHeader className="text-center">
