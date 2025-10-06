@@ -20,7 +20,6 @@ export async function createGenre(name: string) {
 }
 
 // 3. Obter opções de status disponíveis
-// O Prisma exporta o enum diretamente
 export function getReadingStatusOptions() {
     return Object.values(ReadingStatus);
 }

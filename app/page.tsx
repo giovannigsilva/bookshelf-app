@@ -1,55 +1,110 @@
-// app/page.tsx (Dashboard - Server Component)
+"use client";
 
-import { getOverallStats, getBooks } from "@/data/book";  
-import { Button } from "@/components/ui/button" 
-import StartCard from '@/components/dashboard/StartCard';
-import { BookOpen, Book, CheckSquare, TrendingUp, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner'
+import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
+import { login, signup } from '../lib/actions';
 
 
-export default async function DashboardPage() {
-  // Chamada direta ao banco de dados, utilizando Server Components
-  const stats = await getOverallStats();
+export default function AuthPage() {
+  const [isLoginView, setIsLoginView] = useState(true);
 
-  // Lista de cards de estatísticas 
-  const statCards = [
-    { title: 'Total de Livros', value: stats.totalBooks, icon: Book, description: 'Livros cadastrados na sua biblioteca.' },
-    { title: 'Sendo Lidos', value: stats.reading, icon: BookOpen, description: 'Livros em progresso de leitura.' },
-    { title: 'Leituras Finalizadas', value: stats.finished, icon: CheckSquare, description: 'Livros já finalizados.' },
-    { title: 'Páginas Lidas', value: stats.pagesRead.toLocaleString(), icon: TrendingUp, description: 'Total de páginas de livros finalizados.' },
-  ];
+  // FUNÇÃO UNIFICADA PARA TRATAR O CADASTRO E LOGIN
+  const handleAuth = async (formData: FormData): Promise<void> => {
+    const action = isLoginView ? login : signup;
+    const actionType = isLoginView ? 'Login' : 'Cadastro';
 
+    try {
+      // Await a Server Action (que fará o redirect em caso de sucesso)
+      await action(formData);
+
+      // --- CÓDIGO DE SUCESSO (EXECUTADO APÓS REDIRECT) ---
+
+    } catch (error: any) {
+      // Captura o erro, incluindo o sinal NEXT_REDIRECT
+      const errorMessage = error.message.replace('NEXT_REDIRECT', '').trim();
+
+      if (errorMessage) {
+        // A. FALHA DE LÓGICA (ex: credenciais inválidas)
+        toast.error(`Falha no ${actionType}`, {
+          description: errorMessage,
+        });
+
+      } else if (!isLoginView) {
+        // B. CADASTRO DEU CERTO (O erro é só o sinal de redirecionamento)
+
+        // 1. Toaster de Sucesso (REQUISITO)
+        toast.success('Cadastro Concluído!', {
+          description: 'Sua conta foi criada! Faça login para acessar a plataforma.',
+        });
+
+        // 2. Redirecionamento de Visualização (REQUISITO)
+        setIsLoginView(true);
+
+      }
+      // Para login (isLoginView=true), a falha já foi tratada acima. O sucesso é o redirect para /dash.
+    }
+  };
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <section className="space-y-8">
-        <h1 className="text-3xl font-bold">Dashboard Principal</h1>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            {isLoginView ? 'Acessar Plataforma' : 'Criar uma Conta'}
+          </CardTitle>
+        </CardHeader>
 
-        {/* Grid de Estatísticas (Design responsivo e atrativo) */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((card) => (
-            <StartCard key={card.title} {...card} />
-          ))}
+        {/* --- Formulários de Login e Cadastro usam handleAuth --- */}
+        <form action={handleAuth}>
+          {isLoginView ? (
+            <>
+              {/* Campos de Login */}
+              <CardContent className="space-y-4">
+                <Input name="email" type="email" placeholder="E-mail" required />
+                <Input name="password" type="password" required />
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4 pt-4">
+                <AuthSubmitButton isLoginView={true} />
+              </CardFooter>
+            </>
+          ) : (
+            <>
+              {/* Campos de Cadastro */}
+              <CardContent className="space-y-4">
+                <Input name="name" type="text" placeholder="Nome" required />
+                <Input name="email" type="email" placeholder="E-mail" required />
+                <Input name="password" type="password" required />
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4 pt-4">
+                <AuthSubmitButton isLoginView={false} />
+              </CardFooter>
+            </>
+          )}
+        </form>
+        {/* ==================== BOTÃO PARA ALTERNAR ==================== */}
+                <div className="p-6 pt-0 text-center text-sm text-muted-foreground">
+          {isLoginView ? (
+            <>
+              Não possui uma conta?{' '}
+              <button onClick={() => setIsLoginView(false)} className="underline underline-offset-2 hover:text-primary">
+                Cadastre-se
+              </button>
+            </>
+          ) : (
+            <>
+              Já tem uma conta?{' '}
+              <button onClick={() => setIsLoginView(true)} className="underline underline-offset-2 hover:text-primary">
+                Faça login
+              </button>
+            </>
+          )}
         </div>
-
-        {/* Navegação Rápida*/}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Navegação Rápida</h2>
-          <div className='flex gap-4'>
-            <Button size="lg" asChild>
-              <Link href="/books">
-                Minha Biblioteca
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/books/new">
-                Adicionar Novo Livro
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-    </main>
+      </Card>
+    </div>
   );
 }

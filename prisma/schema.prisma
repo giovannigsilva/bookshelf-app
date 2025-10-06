@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,9 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 // 1. Definição do ENUM para o Status de Leitura
+// model Genre {
+//   id    String @id @default(uuid())
+//   name  String @unique
+//   books Book[]
+// }
+
+// model Book {
+//   id          String        @id @default(uuid())
+//   title       String
+//   author      String
+//   genreId     String?
+//   year        Int?
+//   pages       Int?
+//   currentPage Int           @default(0)
+//   rating      Int?
+//   synopsis    String
+//   cover       String?
+//   isbn        String?
+//   notes       String?
+//   status      ReadingStatus @default(QUERO_LER)
+//   createdAt   DateTime      @default(now())
+//   updatedAt   DateTime      @updatedAt
+//   genre       Genre?        @relation(fields: [genreId], references: [id])
+
+//   @@index([title])
+//   @@index([author])
+// }
+
 enum ReadingStatus {
   QUERO_LER
   LENDO
@@ -23,39 +46,48 @@ enum ReadingStatus {
 
 // 2. Modelo de Gênero (para gerenciamento dinâmico) 
 model Genre {
-  id    String @id @default(uuid())
-  name  String @unique // Garante unicidade dos nomes 
-  
+  id   String @id @default(uuid())
+  name String @unique // Garante unicidade dos nomes 
+
   // Relacionamento com Livros
   books Book[]
 }
 
 // 3. Modelo de Livro Expandido 
 model Book {
-  id          String         @id @default(uuid())
-  title       String // Preservado 
-  author      String // Preservado 
-  
+  id     String @id @default(uuid())
+  title  String // Preservado 
+  author String // Preservado 
+
   // Relacionamento com Gênero
-  genreId     String? // Chave estrangeira para o modelo Genre
-  genre       Genre?   @relation(fields: [genreId], references: [id])
-  
-  year        Int?   // Preservado 
-  pages       Int?   // Preservado
-  currentPage Int    @default(0) // Novo campo obrigatório
-  rating      Int?   // Preservado (1-5 estrelas) 
+  genreId String? // Chave estrangeira para o modelo Genre
+  genre   Genre?  @relation(fields: [genreId], references: [id])
+
+  year        Int? // Preservado 
+  pages       Int? // Preservado
+  currentPage Int     @default(0) // Novo campo obrigatório
+  rating      Int? // Preservado (1-5 estrelas) 
   synopsis    String // Preservado 
   cover       String? // Preservado 
   isbn        String? // Novo campo opcional 
   notes       String? // Novo campo opcional (texto longo) 
 
   // Status de Leitura (Novo campo obrigatório) 
-  status      ReadingStatus  @default(QUERO_LER) 
-  
+  status ReadingStatus @default(QUERO_LER)
+
   // Metadados (Novos campos obrigatórios) 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([title])
   @@index([author])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
