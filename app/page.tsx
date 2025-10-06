@@ -24,14 +24,14 @@ export default async function DashboardPage() {
       <section className="space-y-8">
         <h1 className="text-3xl font-bold">Dashboard Principal</h1>
 
-        [cite_start]{/* Grid de Estatísticas (Design responsivo e atrativo) */}
+        {/* Grid de Estatísticas (Design responsivo e atrativo) */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card) => (
             <StartCard key={card.title} {...card} />
           ))}
         </div>
 
-        [cite_start]{/* Navegação Rápida*/}
+        {/* Navegação Rápida*/}
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Navegação Rápida</h2>
           <div className='flex gap-4'>
