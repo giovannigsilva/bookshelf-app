@@ -8,9 +8,31 @@ export type CreateBookData = Omit<Book, 'id' | 'createdAt' | 'updatedAt'>;
 export type UpdateBookData = Partial<CreateBookData>; // Todos os campos são opcionais na atualização
 
 // 1. Listar todos os livros (GET /api/books)
-export async function getBooks(search: string | undefined, genre: string | undefined) {
+export async function getBooks(search?: string | undefined, genre?: string | undefined) {
+
+    const where: any = {};
+
+    if (genre && genre !== 'all') { // Garantir que 'all' é ignorado
+        where.genreId = genre;
+    }
+
+    // 2. Busca por Título ou Autor
+    if (search) {
+        const lowerSearch = search.toLowerCase();
+        // Usamos 'OR' para buscar tanto no título quanto no autor
+        // O `mode: 'insensitive'` é CRUCIAL para o SQLite
+        where.OR = [
+            { title: { contains: lowerSearch } },
+            { author: { contains: lowerSearch } },
+        ];
+    }
+
+    // DEBUG: Se você quiser ver o que o filtro está aplicando:
+    console.log("Prisma WHERE clause:", where);
+
     // Ordenação padrão por data de criação é um requisito de performance
     return prisma.book.findMany({
+        where,
         orderBy: {
             createdAt: 'desc',
         },
@@ -37,6 +59,7 @@ export async function createBook(data: CreateBookData) {
         ...data,
         status: data.status || ReadingStatus.QUERO_LER,
         currentPage: data.currentPage || 0,
+        genreId: data.genreId === '' ? null : data.genreId, // Permitir null se nenhum gênero for selecionado
     };
 
     return prisma.book.create({
@@ -59,6 +82,12 @@ export async function deleteBook(id: string) {
     });
 }
 
+// 6. Buscar livro por ID
+export async function getBookById(id: string) {
+    return prisma.book.findUnique({
+        where: { id },
+    });
+}
 
 // --- FUNÇÕES DE ESTATÍSTICAS (PARA O DASHBOARD) ---
 // Função para contar livros com um status específico
@@ -90,6 +119,54 @@ export async function getOverallStats() {
         pagesRead: pagesReadResult._sum.pages || 0,
     };
 }
+
+// buscar livros por status
+export async function getBooksByStatus(status: ReadingStatus) {
+    return prisma.book.findMany({
+        where: { status },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        include: {
+            genre: true,
+        }
+    });
+}
+
+// buscar livros por gênero
+export async function getBooksByGenre(genreId: string) {
+    return prisma.book.findMany({
+        where: { genreId },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        include: {
+            genre: true,
+        }
+    });
+}
+
+// atualizar progresso de leitura
+export async function updateReadingProgress(id: string, currentPage: number) {
+    return prisma.book.update({
+        where: { id },
+        data: { currentPage },
+    });
+}
+
+// marcar livro como lido
+export async function markAsRead(id: string) {
+    return prisma.book.update({
+        where: { id },
+        data: {
+            status: ReadingStatus.LIDO,
+            currentPage: { // Se quiser garantir que currentPage seja igual ao total de páginas
+                // Esta lógica pode ser ajustada conforme necessário
+            }
+        },
+    });
+}
+
 
 // --- FUNÇÕES CRUD (MUTAÇÕES - CREATE, UPDATE, DELETE) ---
 // Estas serão chamadas pelas Server Actions. 
