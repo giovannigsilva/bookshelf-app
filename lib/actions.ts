@@ -3,7 +3,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { redirect } from 'next/navigation';
-import { signIn } from './auth';
+import * as Auth from './auth';
 
 const prisma = new PrismaClient();
 
@@ -20,15 +20,10 @@ export async function signup(formData: FormData) {
     if (existingUser) throw new Error('Este e-mail já está em uso.');
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     await prisma.user.create({ data: { name, email, password: hashedPassword } });
 
-  } catch (error) {
-    if (error instanceof Error) {
-        console.error('Erro no cadastro:', error.message);
-    }
-    // Em caso de erro, a função para aqui, mas não redireciona
-    return; 
+  } catch (error: any) {
+      throw new Error(error.message || 'Falha desconhecida no cadastro.');  
   }
 
   // Só redireciona em caso de sucesso
@@ -38,14 +33,19 @@ export async function signup(formData: FormData) {
 // AÇÃO DE LOGIN
 export async function login(formData: FormData) {
   try {
-    await signIn('credentials', formData);  
-      
+    await Auth.signIn('credentials', formData);  
+    
+    redirect('/dash');    
   } catch (error: any) {
+    // Trata o erro NEXT_REDIRECT (que é lançado pelo redirect, em caso de sucesso)
+    if (error.message && error.message.includes('NEXT_REDIRECT')) {
+      throw error;
+    }
 
     if (error.type === 'CredentialsSignin') {
       console.error('Credenciais inválidas.');    
-  }
+    }
 
-  redirect('/dash');
-}
+    throw new Error('Falha no login. Tente novamente mais tarde.')  
+  }
 }

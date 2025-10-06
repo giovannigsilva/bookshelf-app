@@ -6,7 +6,7 @@ import ThemeToggle from './ThemeToggle';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navItems = [
-    { name: 'Dashboard', href: '/', icon: Home },
+    { name: 'Dashboard', href: '/dash', icon: Home },
     { name: 'Minha Biblioteca', href: '/books', icon: List },
     { name: 'Adicionar Livro', href: '/books/new', icon: PlusCircle },
     { name:'Implementações Futuras', href:'/future', icon: BookMarked },
@@ -18,7 +18,7 @@ export default function Header() {
             <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center space-x-4">
                     <BookOpenText className="h-6 w-6 text-primary" />
-                    <Link href="/" className="text-xl font-bold tracking-tight">
+                    <Link href="/dash" className="text-xl font-bold tracking-tight">
                         BookShelf
                     </Link>
                 </div>
