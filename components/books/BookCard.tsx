@@ -1,4 +1,3 @@
-// components/books/BookCard.tsx
 'use client';
 
 import { Book, Genre, ReadingStatus } from '@prisma/client';
@@ -29,7 +28,7 @@ export default function BookCard({ book, onDelete }: { book: BookWithGenre, onDe
         return <div className="flex space-x-0.5">{stars}</div>;
     };
 
-    const fallbackCoverUrl = '/public/bookplaceholder.png'; // fallback para imagem padrão
+    const fallbackCoverUrl = '/bookplaceholder.png'; // Requisito: fallback para imagem padrão
 
     async function handleDelete() {
         if (!confirm('Tem certeza que deseja excluir este livro?')) return;
@@ -45,14 +44,15 @@ export default function BookCard({ book, onDelete }: { book: BookWithGenre, onDe
     return (
         <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
             <CardHeader className="p-0 border-b relative">
-                <Image
-                    src={ book.cover || fallbackCoverUrl }
-                    alt={`Capa do livro ${book.title}`}
-                    width={300}
-                    height={450}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                    onError={(e) => { e.currentTarget.src = fallbackCoverUrl; }}
-                />
+                <div className="relative w-full aspect-[2/3] overflow-hidden rounded-t-lg">
+                  <Image
+                      src={book.cover || fallbackCoverUrl}
+                      alt={`Capa do livro ${book.title}`}
+                      fill
+                      className="object-cover"
+                      onError={(e) => { e.currentTarget.src = fallbackCoverUrl; }}
+                  />
+                </div>
                 {book.genre && (
                     <Badge variant="secondary" className="absolute top-2 left-2">{book.genre.name}</Badge>
                 )}
