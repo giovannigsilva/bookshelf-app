@@ -47,7 +47,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
 export default function BookForm({ genres, initialData, isEdit = false }: BookFormProps) {
 
     const [coverUrl, setCoverUrl] = useState(initialData?.cover || '');
-    const [rating, setRating] = useState(initialData.rating || 0);
+    const [rating, setRating] = useState(initialData?.rating || 0);
     const [formProgress, setFormProgress] = useState(0);
     const [error, setError] = useState<string | null>(null);
 
