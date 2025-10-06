@@ -21,7 +21,6 @@ export default function Header() {
                         BookShelf
                     </Link>
                 </div>
-
                 {/* Navegação Desktop */}
                 <nav className="hidden md:flex space-x-1">
                     {navItems.map((item) => (
