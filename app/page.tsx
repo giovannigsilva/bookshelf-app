@@ -6,69 +6,86 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner'
+import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 import { login, signup } from '../lib/actions';
 
 
 export default function AuthPage() {
   const [isLoginView, setIsLoginView] = useState(true);
 
+  // FUNÇÃO UNIFICADA PARA TRATAR O CADASTRO E LOGIN
+  const handleAuth = async (formData: FormData): Promise<void> => {
+    const action = isLoginView ? login : signup;
+    const actionType = isLoginView ? 'Login' : 'Cadastro';
+
+    try {
+      // Await a Server Action (que fará o redirect em caso de sucesso)
+      await action(formData);
+
+      // --- CÓDIGO DE SUCESSO (EXECUTADO APÓS REDIRECT) ---
+
+    } catch (error: any) {
+      // Captura o erro, incluindo o sinal NEXT_REDIRECT
+      const errorMessage = error.message.replace('NEXT_REDIRECT', '').trim();
+
+      if (errorMessage) {
+        // A. FALHA DE LÓGICA (ex: credenciais inválidas)
+        toast.error(`Falha no ${actionType}`, {
+          description: errorMessage,
+        });
+
+      } else if (!isLoginView) {
+        // B. CADASTRO DEU CERTO (O erro é só o sinal de redirecionamento)
+
+        // 1. Toaster de Sucesso (REQUISITO)
+        toast.success('Cadastro Concluído!', {
+          description: 'Sua conta foi criada! Faça login para acessar a plataforma.',
+        });
+
+        // 2. Redirecionamento de Visualização (REQUISITO)
+        setIsLoginView(true);
+
+      }
+      // Para login (isLoginView=true), a falha já foi tratada acima. O sucesso é o redirect para /dash.
+    }
+  };
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
-        {/* O Header do Card muda de acordo com o estado */}
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
             {isLoginView ? 'Acessar Plataforma' : 'Criar uma Conta'}
           </CardTitle>
-          <CardDescription>
-            {isLoginView ? 'Entre com seu e-mail e senha' : 'Digite seus dados para se cadastrar'}
-          </CardDescription>
         </CardHeader>
 
-        {isLoginView ? (
-         /* ==================== FORMULÁRIO DE LOGIN ==================== */
-<form action={login}>
-    <CardContent className="space-y-4">
-        <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
-        </div>
-        <div className="space-y-2">
-            <div className="flex items-center justify-between">
-           </div>
-            <Input id="password" name="password" type="password" required />
-        </div>
-    </CardContent>
-    {/* AQUI A MUDANÇA: Adicionei "pt-4" para criar o espaçamento */}
-    <CardFooter className="flex flex-col gap-4 pt-4">
-        <Button type="submit" className="w-full">Entrar</Button>
-    </CardFooter>
-</form>
-) : (
-          /* ==================== FORMULÁRIO DE CADASTRO ==================== */
-          <form action={signup}>
-            
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input id="name" name="name" type="text" placeholder="Seu nome completo" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input id="password" name="password" type="password" required />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4 pt-4">
-              <Button type="submit" className="w-full">Cadastrar</Button>
-            </CardFooter>
-          </form>
-          
-        )}
-
+        {/* --- Formulários de Login e Cadastro usam handleAuth --- */}
+        <form action={handleAuth}>
+          {isLoginView ? (
+            <>
+              {/* Campos de Login */}
+              <CardContent className="space-y-4">
+                <Input name="email" type="email" placeholder="E-mail" required />
+                <Input name="password" type="password" required />
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4 pt-4">
+                <AuthSubmitButton isLoginView={true} />
+              </CardFooter>
+            </>
+          ) : (
+            <>
+              {/* Campos de Cadastro */}
+              <CardContent className="space-y-4">
+                <Input name="name" type="text" placeholder="Nome" required />
+                <Input name="email" type="email" placeholder="E-mail" required />
+                <Input name="password" type="password" required />
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4 pt-4">
+                <AuthSubmitButton isLoginView={false} />
+              </CardFooter>
+            </>
+          )}
+        </form>
         {/* ==================== BOTÃO PARA ALTERNAR ==================== */}
                 <div className="p-6 pt-0 text-center text-sm text-muted-foreground">
           {isLoginView ? (
