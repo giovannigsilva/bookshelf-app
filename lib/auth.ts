@@ -1,51 +1,80 @@
-import NextAuth from 'next-auth';
+import { NextAuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }
+
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+  }
+}
+
 const prisma = new PrismaClient();
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
   providers: [
     Credentials({
-      // Você pode definir campos aqui para um formulário de login gerado automaticamente,
-      // mas como já temos o nosso, vamos focar na lógica de autorização.
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials.password) return null;
 
-        const email = credentials.email as string;
-        const password = credentials.password as string;
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+        if (!user) return null;
 
-        // 1. Encontrar o usuário no banco de dados
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) {
-          console.error('Usuário não encontrado.');
-          return null; // Usuário não encontrado
-        }
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordValid) return null;
 
-        // 2. Verificar se a senha está correta
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-          console.error('Senha inválida.');
-          return null; // Senha incorreta
-        }
-
-        // 3. Se tudo estiver correto, retorne o objeto do usuário
-        // O NextAuth cuidará de criar a sessão com este objeto
-        return user;
+        return {
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email
+        };
       },
     }),
   ],
-  // Opcional: Defina a página de login customizada.
-  // NextAuth redirecionará para cá automaticamente em caso de acesso negado.
   pages: {
-    signIn: '/', // Sua página de login/cadastro é a raiz do site
+    signIn: '/',
   },
-});
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          id: token.id as string,
+          name: token.name as string,
+          email: token.email as string,
+        };
+      }
+      return session;
+    },
+  },
+};
