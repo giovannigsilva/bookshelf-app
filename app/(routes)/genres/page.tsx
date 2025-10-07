@@ -91,22 +91,22 @@ export default function ManageGenresPage() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-950 text-gray-50 p-4 sm:p-6 lg:p-8">
+        <main className="min-h-screen p-4 sm:p-6 lg:p-8">
             <div className="max-w-4xl mx-auto">
                 
                 {/* Cabeçalho da página com título e botão de voltar */}
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-3xl font-bold text-gray-50">Gerenciar Gêneros</h1>
+                    <h1 className="text-3xl font-bold">Gerenciar Gêneros</h1>
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/books"><ChevronLeft className="mr-2 h-4 w-4" />Voltar</Link>
                     </Button>
                 </div>
 
                 {/* Conteúdo unificado dentro de um único card escuro */}
-                <div className="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                <div className=" p-6 rounded-lg shadow-md border">
                     {/* Formulário de Criação */}
                     <form onSubmit={handleCreateGenre} className="mb-8">
-                        <label htmlFor="genre-name" className="block text-sm font-medium text-gray-400 mb-2">
+                        <label htmlFor="genre-name" className="block text-sm font-medium mb-2">
                             Adicionar Novo Gênero
                         </label>
                         <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -116,35 +116,35 @@ export default function ManageGenresPage() {
                                 value={newGenreName}
                                 onChange={(e) => setNewGenreName(e.target.value)}
                                 placeholder="Nome do novo gênero"
-                                className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-md w-full text-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black-600 transition"
+                                className="px-4 py-2 border unded-md w-full focus:outline-none focus:ring-2 focus:ring-black-600 transition rounded-md"
                             />
-                            <button 
+                            <Button 
                                 type="submit"
-                                className="w-full sm:w-auto px-6 py-2 bg-gray-600 text-white font-semibold rounded-md shadow-sm hover:bg-gray-700 transition-colors"
+                                className="w-full sm:w-auto px-6 py-2 font-semibold rounded-md shadow-sm"
                             >
                                 Adicionar
-                            </button>
+                            </Button>
                         </div>
                     </form>
-                    {message && <p className="text-center text-sm text-gray-400 mb-4">{message}</p>}
+                    {message && <p className="text-center text-sm  mb-4">{message}</p>}
 
-                    <hr className="my-8 border-gray-700" />
+                    <hr className="my-8 " />
 
                     {/* Lista de Gêneros Existentes */}
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-50 mb-4">Gêneros Existentes</h2>
+                        <h2 className="text-2xl font-bold mb-4">Gêneros Existentes</h2>
                         {isLoading ? (
-                            <p className="text-gray-400">Carregando...</p>
+                            <p className="text-gray-600">Carregando...</p>
                         ) : (
                             <ul className="space-y-3">
                                 {genres.length > 0 ? genres.map((genre) => (
-                                    <li key={genre.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-md hover:bg-gray-700 transition-colors border border-gray-700">
-                                        <span className="text-gray-50">{genre.name}</span>
+                                    <li key={genre.id} className="flex items-center justify-between p-3 rounded-md hover:bg-gray-400 transition-colors border border-gray-700">
+                                        <span className="">{genre.name}</span>
                                         <Button size="sm" variant="ghost" onClick={() => handleDeleteGenre(genre.id)} className="text-red-500 hover:text-red-400">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </li>
-                                )) : <p className="text-gray-400">Nenhum gênero cadastrado.</p>}
+                                )) : <p className="text-gray-600">Nenhum gênero cadastrado.</p>}
                             </ul>
                         )}
                     </div>
