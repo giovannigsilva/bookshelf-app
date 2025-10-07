@@ -23,3 +23,10 @@ export async function createGenre(name: string) {
 export function getReadingStatusOptions() {
     return Object.values(ReadingStatus);
 }
+
+// 4. Remover um gênero pelo ID (DELETE /api/categories/genres/[id])
+export async function deleteGenre(id: string) {
+    return prisma.genre.delete({
+        where: { id },
+    });
+}

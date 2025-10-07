@@ -45,6 +45,12 @@ export default async function DashboardPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/genres">
+                Editor de Gêneros
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

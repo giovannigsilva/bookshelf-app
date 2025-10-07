@@ -3,6 +3,8 @@
 // O Prisma Client deve ser importado usando require()
 const { PrismaClient, ReadingStatus } = require('@prisma/client');
 
+const bcrypt = require('bcrypt');
+
 const prisma = new PrismaClient();
 
 // Gêneros disponíveis conforme requisitos
@@ -44,8 +46,24 @@ async function main() {
         return acc;
     }, {});
 
+    // 2. ADICIONADO: Criar Usuário de Teste
+    console.log('Criando usuário de teste...');
+    const email = 'admin@admin.com.br';
+    const plainPassword = 'P@ssword123';
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-    // 2. Dados Iniciais de Livros
+    await prisma.user.upsert({
+        where: { email: email },
+        update: {},
+        create: {
+            email: email,
+            name: 'Usuário de Teste',
+            password: hashedPassword,
+        },
+    });
+    console.log(`Criado ou atualizado o usuário: ${email}`);
+
+    // 3. Dados Iniciais de Livros
     const booksToSeed = [
         {
             title: "O Senhor dos Anéis",
@@ -109,7 +127,7 @@ async function main() {
         }
     ];
 
-    // 3. Inserir Livros no Banco
+    // 4. Inserir Livros no Banco
     for (const book of booksToSeed) {
         const genre = genreMap[book.genreName];
 
