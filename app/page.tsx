@@ -11,38 +11,63 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 export default function AuthPage() {
   const [isLoginView, setIsLoginView] = useState(true);
 
+  const handleLogin = async (formData: FormData) => {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    // Primeiro, verificar se o email existe
+    try {
+      const checkResponse = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const { exists } = await checkResponse.json();
+      
+      if (!exists) {
+        toast.error("Este email não possui cadastro. Cadastre-se primeiro!");
+        return;
+      }
+    } catch (error) {
+      console.error("Erro ao verificar email:", error);
+    }
+
+    // Se o email existe, tentar fazer login
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (result?.error) {
+      toast.error("Senha incorreta. Tente novamente.");
+    } else if (result?.ok) {
+      window.location.href = "/dash";
+    }
+  };
+
+  const handleSignup = async (formData: FormData) => {
+    try {
+      await signup(formData);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes("NEXT_REDIRECT")) {
+        // redirect lançado pelo Next.js, considerar sucesso
+        toast.success("Cadastro concluído! Faça login para acessar a plataforma.");
+        setIsLoginView(true);        
+      } else {
+        toast.error("Falha no cadastro: " + errorMessage);
+      }
+    }
+  };
+
   const handleAuth = async (formData: FormData) => {
     if (isLoginView) {
-      // LOGIN CLIENT-SIDE
-      const email = formData.get("email") as string;
-      const password = formData.get("password") as string;
-
-      const result = await signIn("credentials", {
-        redirect: true,
-        email,
-        password,
-        callbackUrl: "/dash",
-      });
-
-      if (result?.error) {
-        toast.error("Falha no login: " + result.error);
-      }
+      await handleLogin(formData);
     } else {
-      // CADASTRO SERVER-SIDE
-      try {
-        await signup(formData);
-        // toast.success("Cadastro concluído! Faça login para acessar a plataforma.");
-        // setIsLoginView(true);
-      } catch (error: any) {
-        if (error.message?.includes("NEXT_REDIRECT")) {
-          // redirect lançado pelo Next.js, considerar sucesso
-          toast.success("Cadastro concluído! Faça login para acessar a plataforma.");
-          setIsLoginView(true);        
-        } else {
-          toast.error("Falha no cadastro: " + error.message);
-        }
-      }
-    };
+      await handleSignup(formData);
+    }
   };
   
   return (
@@ -87,3 +112,4 @@ export default function AuthPage() {
     </div>
   );
 }
+
