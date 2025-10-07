@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Moon, Sun, UserPlus } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 const features = [
     {
@@ -206,6 +207,9 @@ export default function FeatureDetailPage({ params }: { params: { slug: string }
     return (
         <main className="min-h-screen py-12 px-6">
             <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                    <BackButton />
+                </div>
                 <Badge variant="outline" className="mb-4">Conceito de Funcionalidade</Badge>
                 <h1 className="text-4xl font-bold mb-2">{feature.title}</h1>
                 <p className="text-lg text-muted-foreground mb-12">
