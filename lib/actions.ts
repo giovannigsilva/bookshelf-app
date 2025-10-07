@@ -23,3 +23,9 @@ export async function signup(formData: FormData) {
 
   redirect('/'); // redireciona para a página de login
 }
+
+// NOVA AÇÃO DE LOGOUT
+export async function logout() {
+  redirect('/');
+}
+
