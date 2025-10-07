@@ -1,55 +1,89 @@
-// app/page.tsx (Dashboard - Server Component)
+"use client";
 
-import { getOverallStats, getBooks } from "@/data/book";  
-import { Button } from "@/components/ui/button" 
-import StartCard from '@/components/dashboard/StartCard';
-import { BookOpen, Book, CheckSquare, TrendingUp, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { toast } from 'sonner';
+import { signup } from '../lib/actions';
+import { Input } from '@/components/ui/input';
+import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
+export default function AuthPage() {
+  const [isLoginView, setIsLoginView] = useState(true);
 
-export default async function DashboardPage() {
-  // Chamada direta ao banco de dados, utilizando Server Components
-  const stats = await getOverallStats();
+  const handleAuth = async (formData: FormData) => {
+    if (isLoginView) {
+      // LOGIN CLIENT-SIDE
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
 
-  // Lista de cards de estatísticas 
-  const statCards = [
-    { title: 'Total de Livros', value: stats.totalBooks, icon: Book, description: 'Livros cadastrados na sua biblioteca.' },
-    { title: 'Sendo Lidos', value: stats.reading, icon: BookOpen, description: 'Livros em progresso de leitura.' },
-    { title: 'Leituras Finalizadas', value: stats.finished, icon: CheckSquare, description: 'Livros já finalizados.' },
-    { title: 'Páginas Lidas', value: stats.pagesRead.toLocaleString(), icon: TrendingUp, description: 'Total de páginas de livros finalizados.' },
-  ];
+      const result = await signIn("credentials", {
+        redirect: true,
+        email,
+        password,
+        callbackUrl: "/dash",
+      });
 
+      if (result?.error) {
+        toast.error("Falha no login: " + result.error);
+      }
+    } else {
+      // CADASTRO SERVER-SIDE
+      try {
+        await signup(formData);
+        // toast.success("Cadastro concluído! Faça login para acessar a plataforma.");
+        // setIsLoginView(true);
+      } catch (error: any) {
+        if (error.message?.includes("NEXT_REDIRECT")) {
+          // redirect lançado pelo Next.js, considerar sucesso
+          toast.success("Cadastro concluído! Faça login para acessar a plataforma.");
+          setIsLoginView(true);        
+        } else {
+          toast.error("Falha no cadastro: " + error.message);
+        }
+      }
+    };
+  };
+  
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <section className="space-y-8">
-        <h1 className="text-3xl font-bold">Dashboard Principal</h1>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            {isLoginView ? "Acessar Plataforma" : "Criar uma Conta"}
+          </CardTitle>
+        </CardHeader>
 
-        {/* Grid de Estatísticas (Design responsivo e atrativo) */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((card) => (
-            <StartCard key={card.title} {...card} />
-          ))}
-        </div>
+        <form action={handleAuth}>
+          <CardContent className="space-y-4">
+            {!isLoginView && <Input name="name" type="text" placeholder="Nome" required />}
+            <Input name="email" type="email" placeholder="E-mail" required />
+            <Input name="password" type="password" placeholder="Senha" required />
+          </CardContent>
 
-        {/* Navegação Rápida*/}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Navegação Rápida</h2>
-          <div className='flex gap-4'>
-            <Button size="lg" asChild>
-              <Link href="/books">
-                Minha Biblioteca
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/books/new">
-                Adicionar Novo Livro
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+          <CardFooter className="flex flex-col gap-4 pt-4">
+            <AuthSubmitButton isLoginView={isLoginView} />
+          </CardFooter>
+        </form>
+
+        <div className="p-6 pt-0 text-center text-sm text-muted-foreground">
+          {isLoginView ? (
+            <>
+              Não possui uma conta?{" "}
+              <button onClick={() => setIsLoginView(false)} className="underline underline-offset-2 hover:text-primary">
+                Cadastre-se
+              </button>
+            </>
+          ) : (
+            <>
+              Já tem uma conta?{" "}
+              <button onClick={() => setIsLoginView(true)} className="underline underline-offset-2 hover:text-primary">
+                Faça login
+              </button>
+            </>
+          )}
         </div>
-      </section>
-    </main>
+      </Card>
+    </div>
   );
 }

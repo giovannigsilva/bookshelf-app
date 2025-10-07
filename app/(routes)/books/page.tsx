@@ -3,12 +3,12 @@
 export const dynamic = 'force-dynamic';
 
 import { getBooks } from '@/data/book';
-import { getGenres } from '@/data/genres'; // Assumindo que você recriará este arquivo depois
 import BookCard from '@/components/books/BookCard';
 import BookFilters from '@/components/books/BookFilters';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BookOpenText } from 'lucide-react';
+import { getGenres } from '@/data/genres';
 
 
 // Este é um Server Component que busca os dados no servidor.
@@ -18,11 +18,14 @@ export default async function BookshelfPage({
     searchParams: { search?: string; genre?: string };
 }) {
 
+    // Busca os livros com base nos filtros (função getBooks já suporta isso)
+    const allBooks = await getBooks(searchParams?.search, searchParams?.genre);
+    // const genres = await getGenres(); // Usaríamos para o componente de filtro
     const search = searchParams.search;
     const genreId = searchParams.genre;
 
     // Busca os livros com base nos filtros (função getBooks já faz isso)
-    const allBooks = await getBooks(search, genreId);
+    // const allBooks = await getBooks(search, genreId);
     const genres = await getGenres(); 
 
     // const genres = await getGenres(); // Usaríamos para o componente de filtro
