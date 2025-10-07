@@ -24,17 +24,17 @@ export default function FuturePage() {
       status: "Em desenvolvimento",
     },
     {
-      title: "Ranking entre amigos",
-      slug: "ranking-de-amigos",
-      description:
-        "Criar um sistema de ranking onde os usuários podem comparar seu progresso de leitura com o de seus amigos na plataforma.",
-      status: "Planejado",
-    },
-    {
       title: "Adicionar amigos",
       slug: "adicionar-amigos",
       description:
         "Implementar um sistema de amizade que permita aos usuários encontrar, adicionar e interagir com outros leitores na plataforma.",
+      status: "Planejado",
+    },
+    {
+      title: "Ranking entre amigos",
+      slug: "ranking-de-amigos",
+      description:
+        "Criar um sistema de ranking onde os usuários podem comparar seu progresso de leitura com o de seus amigos na plataforma.",
       status: "Planejado",
     },
     {
