@@ -6,7 +6,7 @@ Este projeto é uma aplicação web moderna para catalogar, organizar e acompanh
 
 ## 💻 Tecnologias e Arquitetura
 
-[cite\_start]BookShelf foi desenvolvido com um *stack* moderno e *type-safe* que utiliza a arquitetura Server/Client Component do Next.js App Router
+BookShelf foi desenvolvido com um *stack* moderno e *type-safe* que utiliza a arquitetura Server/Client Component do Next.js App Router
 | Categoria | Tecnologia | Versão | Propósito |
 | :--- | :--- | :--- | :--- |
 | **Framework** | **Next.js** | 15 (App Router) | Roteamento, SSR e Server Actions. |
@@ -21,9 +21,11 @@ Este projeto é uma aplicação web moderna para catalogar, organizar e acompanh
 
 | Seção | Funcionalidades |
 | :--- | :--- |
-| **Dashboard** (`/`) | Estatísticas gerais (Total de livros, Livros lendo, Páginas lidas) e navegação rápida. |
+| **Login** (`/`) | Página de login com toaster (erro/sucesso). |
+| **Dashboard** (`/dash`) | Estatísticas gerais (Total de livros, Livros lendo, Páginas lidas) e navegação rápida. |
 | **Biblioteca** (`/books`) | Listagem de livros em formato de cards, com sistema de **busca por título/autor** e **filtros por gênero**. |
 | **CRUD** | Criação, Visualização, Edição e Exclusão de livros. |
+| **CRUD** | Manutenção de Gêneros. |
 | **Detalhes** | Exibição completa de informações, progresso de leitura, sinopse e notas pessoais. |
 | **UX/UI** | Design responsivo, tema claro/escuro e feedback visual (Toasts/Dialogs). |
 
@@ -37,21 +39,27 @@ bookshelf-app/
 │   ├── (routes)/
 │   │   ├── books/
 │   │   │   ├── [bookId]/         # Página de Detalhes do Livro (READ)
-│   │   │   │   └── page.tsx
-│   │   │   ├── edit/
-│   │   │   │   └── [bookId]/     # Página de Edição (UPDATE)
-│   │   │   │       └── page.tsx
-│   │   │   ├── new/              # Página de Adição de Novo Livro (CREATE)
-│   │   │   │   └── page.tsx
-│   │   │   ├── route.ts          # API Route: GET/POST /api/books (CRUD)
-│   │   │   ├── actions.ts        # Next.js Server Actions (Mutations)
-│   │   │   └── page.tsx          # Página da Biblioteca (Listagem)
-│   │   ├── api/
-│   │   │   ├── books/            # API Routes para o modelo Book
-│   │   │   └── categories/       # API Routes para Gêneros
-│   │   ├── layout.tsx            # Layout principal (Header, ThemeProvider)
-│   │   └── page.tsx              # Dashboard Principal
+│           ├── edit/
+│           ├── └── [bookId]/     # Página de Edição (UPDATE)
+│           ├── new/              # Página de Adição de Novo Livro (CREATE)
+│           ├── dash/             # Dashboard Principal & Layout principal (Header, ThemeProvider)
+│           ├── future/           # Implementações futuras
+│               └── [slug]/           
+│                   └── _components/    
+│               └── page.tsx
+│   │   │   ├── genres/
+│   │   │   │   └── page.tsx      # Página de Manutenção de Gênero
+│   ├── api/
+│   │   ├── auth/                 # API routes
+│   │   │   └── [...nextauth]/
+│   │   │   └── [check-email]/
+│   │   │   └── edit/
+│   │   │   │   └── [id]/     
+│   │   ├── layout.tsx            # Layout principal login
+│   │   └── page.tsx              # Login Principal
+│   │   └── middleware.tsx        # Controle de rota
 │   └── components/
+│       ├── auth/                 # Componentes específicos de login
 │       ├── books/                # Componentes específicos de livros (BookCard, Filtros)
 │       ├── dashboard/            # Componentes específicos do Dashboard (StatCard)
 │       ├── forms/                # Componentes de Formulário (BookForm)
